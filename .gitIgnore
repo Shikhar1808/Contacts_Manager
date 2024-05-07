@@ -1,0 +1,8 @@
+/node_modules
+.env
+whatiDid.js
+.env
+.env.*
+*.env
+node_modules
+package-lock.*
