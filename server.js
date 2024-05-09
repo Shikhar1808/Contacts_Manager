@@ -1,10 +1,12 @@
 const express = require("express");
-const dotenv = require('dotenv').config();
 const router = require("./routers/contactRoutes");
 const { errorHandler } = require("./middleware/errorHandler");
+const connectDB = require("./config/dbConncetion");
+const dotenv = require('dotenv').config();
 
 const port = process.env.PORT;
 
+connectDB();
 const app = express(); //created the express app
 
 app.use(express.json());
