@@ -28,7 +28,7 @@ exports.createContact = asyncHandler(async (req,res) =>{
     const newcontact = await contactSchema.create({
         name,
         email,
-        phone
+        phone,
     })
     res.status(200).json({
         "message": "Created the contact",
@@ -40,8 +40,16 @@ exports.createContact = asyncHandler(async (req,res) =>{
 //@route DELETE /api/contacts/:id
 //@access public
 exports.deleteContact = asyncHandler(async (req,res) =>{
+    const contact = await contactSchema.findById(req.params.id);
+    if(!contact){
+        res.status(404).send("Contact not found");
+        throw new Error("Contact not found");
+    }
+    const deletedContact = await contactSchema.findByIdAndDelete(req.params.id);
+    console.log(deletedContact);
     res.status(200).json({
         "message": `Deleted the contact ${req.params.id}`,
+        deletedContact,
     });
 })
 
@@ -49,8 +57,20 @@ exports.deleteContact = asyncHandler(async (req,res) =>{
 //@route PUT /api/contacts/"id"
 //@access public
 exports.updateContact = asyncHandler(async (req,res) =>{
+    const contact = await contactSchema.findById(req.params.id);
+    if(!contact){
+        res.status(404).errorHandler;
+        throw new Error("Contact not found");    
+    }
+    const updateContact = await contactSchema.findByIdAndUpdate(
+        req.params.id,
+        req.body,
+        {new: true}
+    );
+    console.log(updateContact);
     res.status(200).json({
         "message": `Updated the contact ${req.params.id}`,
+        updateContact,
     });
 })
 
@@ -58,7 +78,14 @@ exports.updateContact = asyncHandler(async (req,res) =>{
 //@route GET /api/contacts/:id
 //@access public
 exports.getContact = asyncHandler(async (req,res) =>{
+    const contact = await contactSchema.findById(req.params.id);
+    console.log(contact);
+    if(!contact){
+        res.status(404).errorHandler;
+        throw new Error("Contact not found");    
+    }
     res.status(200).json({
         "message": `Got the contact ${req.params.id}`,
+        contact,
     });
 })
