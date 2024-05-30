@@ -69,7 +69,7 @@ exports.loginUser = asyncHandler(async (req,res) =>{
             id: user.id,
         }
         },process.env.ACCESS_TOKEN_SECRET,
-        {expiresIn: "1m"})
+        {expiresIn: "15m"})
         //here we provided the user a token to access the data that will expire in 1min
         res.status(200).json({ 
             accessToken
@@ -87,13 +87,12 @@ exports.loginUser = asyncHandler(async (req,res) =>{
 })
 
 //@desc Current user
-//@route POSt /api/users/register
+//@route GET /api/users/register
 //@access private
 exports.currentUser = asyncHandler(async (req,res) =>{
     // const user = await userSchema.create(req.body);
     res.status(200).json({
-        message: "Current user details",
-        // user,
+        "message": req.user
     })
 })
 

@@ -5,9 +5,9 @@ const contactSchema = require("./../models/contactModel");
 
 //@desc Get all contacts
 //@route GET /api/contacts
-//@access public
+//@access private
 exports.getAllContact = asyncHandler(async (req,res) =>{
-    const contacts = await contactSchema.find();
+    const contacts = await contactSchema.find({user_id: req.user.id});
     res.status(200).json({
         "message": "success",
         contacts,
@@ -16,7 +16,7 @@ exports.getAllContact = asyncHandler(async (req,res) =>{
 
 //@desc Create contact
 //@route POSt /api/contacts
-//@access public
+//@access private
 exports.createContact = asyncHandler(async (req,res) =>{
     console.log(req.body);
     const {name,email, phone} = req.body;
@@ -29,6 +29,7 @@ exports.createContact = asyncHandler(async (req,res) =>{
         name,
         email,
         phone,
+        user_id: req.user.id, //associating the contact with the user
     })
     res.status(200).json({
         "message": "Created the contact",
@@ -38,13 +39,19 @@ exports.createContact = asyncHandler(async (req,res) =>{
 
 //@desc Delete contact
 //@route DELETE /api/contacts/:id
-//@access public
+//@access private
 exports.deleteContact = asyncHandler(async (req,res) =>{
     const contact = await contactSchema.findById(req.params.id);
     if(!contact){
         res.status(404).send("Contact not found");
         throw new Error("Contact not found");
     }
+
+    if(contact.user_id.toString() !== req.user.id){
+        res.status(401).errorHandler;
+        throw new Error("User dont have access to update other user's contact");
+    }
+
     const deletedContact = await contactSchema.findByIdAndDelete(req.params.id);
     console.log(deletedContact);
     res.status(200).json({
@@ -55,13 +62,19 @@ exports.deleteContact = asyncHandler(async (req,res) =>{
 
 //@desc Update contact
 //@route PUT /api/contacts/"id"
-//@access public
+//@access private
 exports.updateContact = asyncHandler(async (req,res) =>{
     const contact = await contactSchema.findById(req.params.id);
     if(!contact){
         res.status(404).errorHandler;
         throw new Error("Contact not found");    
     }
+
+    if(contact.user_id.toString() !== req.user.id){
+        res.status(401).errorHandler;
+        throw new Error("User dont have access to update other user's contact");
+    }
+
     const updateContact = await contactSchema.findByIdAndUpdate(
         req.params.id,
         req.body,
@@ -76,7 +89,7 @@ exports.updateContact = asyncHandler(async (req,res) =>{
 
 //@desc Get contact
 //@route GET /api/contacts/:id
-//@access public
+//@access private
 exports.getContact = asyncHandler(async (req,res) =>{
     const contact = await contactSchema.findById(req.params.id);
     console.log(contact);
